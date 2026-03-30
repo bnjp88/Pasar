@@ -237,6 +237,7 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:.6;}
 
 <header>
   <div class="logo">Pasar <em>Price Tracker</em></div>
+  <div style="display:flex;align-items:center;gap:8px"><div id="sync-dot" title="Sync status" style="width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0;transition:background .4s"></div></div>
   <div class="hbtns">
     <button class="hbtn" title="Manage Tags" onclick="openTagMgr()">⌗</button>
     <button class="hbtn" title="Import" onclick="switchTab('import')">↑</button>
@@ -423,6 +424,87 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:.6;}
 
 <script>
 // ════════════════════════════════════════════
+// SUPABASE CONFIG
+// ════════════════════════════════════════════
+const SB_URL  = 'https://iduofmmywuqvojkjphxd.supabase.co';
+const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkdW9mbW15d3Vxdm9qa2pwaHhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODAxNjUsImV4cCI6MjA5MDQ1NjE2NX0.jIoQFMwBJ27nGi52laEAIh46eop6C1Yts06PyIi6xvA';
+const SB_HDR  = {'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
+
+// Push a single entry upsert to Supabase
+async function sbUpsert(entry){
+  try{
+    await fetch(`${SB_URL}/rest/v1/entries`,{
+      method:'POST',
+      headers:{...SB_HDR,'Prefer':'resolution=merge-duplicates'},
+      body:JSON.stringify({id:entry.id, data:entry, updated_at:new Date().toISOString()})
+    });
+  }catch(e){console.warn('Supabase upsert failed',e);}
+}
+
+// Delete a single entry from Supabase
+async function sbDelete(id){
+  try{
+    await fetch(`${SB_URL}/rest/v1/entries?id=eq.${id}`,{method:'DELETE',headers:SB_HDR});
+  }catch(e){console.warn('Supabase delete failed',e);}
+}
+
+// Pull all entries from Supabase and merge with localStorage
+// Remote wins on conflict (same id), newest updated_at wins
+async function sbSync(){
+  setSyncStatus('syncing');
+  try{
+    const res=await fetch(`${SB_URL}/rest/v1/entries?select=id,data,updated_at&order=updated_at.desc`,{headers:SB_HDR});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const rows=await res.json();
+    if(rows&&rows.length){
+      // Build map of remote entries keyed by id
+      const remoteMap={};
+      rows.forEach(r=>{ if(r.data) remoteMap[r.id]=r.data; });
+      // Merge: remote wins for any id that exists remotely
+      const localMap={};
+      entries.forEach(e=>localMap[e.id]=e);
+      // Union of all ids, remote takes precedence
+      const merged=Object.values({...localMap,...remoteMap});
+      // Sort newest first by date
+      merged.sort((a,b)=>b.date.localeCompare(a.date)||(b.id-a.id));
+      entries=merged;
+      localStorage.setItem(EK,JSON.stringify(entries));
+      // ensure tag colors for all tags
+      entries.forEach(e=>(e.tags||[]).forEach(t=>tagColor(t)));
+    }
+    setSyncStatus('ok');
+    renderHome();
+    populateSuggestions();
+  }catch(e){
+    console.warn('Supabase sync failed',e);
+    setSyncStatus('err');
+  }
+}
+
+// Push entire local state to Supabase (used after import/clear)
+async function sbPushAll(){
+  try{
+    const rows=entries.map(e=>({id:e.id,data:e,updated_at:new Date().toISOString()}));
+    // Upsert in batches of 50
+    for(let i=0;i<rows.length;i+=50){
+      await fetch(`${SB_URL}/rest/v1/entries`,{
+        method:'POST',
+        headers:{...SB_HDR,'Prefer':'resolution=merge-duplicates'},
+        body:JSON.stringify(rows.slice(i,i+50))
+      });
+    }
+  }catch(e){console.warn('Supabase push all failed',e);}
+}
+
+// Sync status indicator
+function setSyncStatus(s){
+  const el=document.getElementById('sync-dot');
+  if(!el) return;
+  el.title=s==='ok'?'Synced':s==='syncing'?'Syncing…':'Sync error';
+  el.style.background=s==='ok'?'#22c55e':s==='syncing'?'#f59e0b':'#ef4444';
+}
+
+// ════════════════════════════════════════════
 // STATE
 // ════════════════════════════════════════════
 const EK='pasar_v4_entries', TK='pasar_v4_tagcolors';
@@ -450,7 +532,7 @@ function tagColor(tag){
   return PALETTE[tagColors[tag]];
 }
 function saveTC(){localStorage.setItem(TK,JSON.stringify(tagColors));}
-function saveE(){localStorage.setItem(EK,JSON.stringify(entries));}
+function saveE(changedEntry){localStorage.setItem(EK,JSON.stringify(entries));if(changedEntry)sbUpsert(changedEntry);}
 
 // ════════════════════════════════════════════
 // INIT
@@ -459,6 +541,8 @@ document.getElementById('f-date').value=today();
 initTagInput('tag-field-add','tsugg-add','tag-wrap-add',()=>currentTags,v=>{currentTags=v;renderTagPills('tag-wrap-add','tag-field-add',currentTags);});
 renderHome();
 populateSuggestions();
+// Sync with Supabase on load
+sbSync();
 
 function today(){return new Date().toISOString().split('T')[0];}
 
@@ -733,8 +817,8 @@ function saveEntry(){
   if(priceType==='byweight'){price=parseFloat(document.getElementById('f-kgprice').value);if(!price||price<=0) return toast('Enter RM/kg price');}
   else if(priceType==='bypack'){price=parseFloat(document.getElementById('f-packprice').value);packSize=parseFloat(document.getElementById('f-packsize').value)||null;packUnit=document.getElementById('f-packunit').value;if(!price||price<=0) return toast('Enter pack price');}
   else{price=parseFloat(document.getElementById('f-pieceprice').value);pieceQty=parseInt(document.getElementById('f-pieceqty').value)||null;if(!price||price<=0) return toast('Enter piece price');}
-  entries.unshift({id:Date.now(),product:cap(product),brand:brand?cap(brand):'',tags,price,priceType,packSize,packUnit,pieceQty,store,date,notes});
-  saveE(); populateSuggestions(); toast('✓ Saved');
+  const _ne={id:Date.now(),product:cap(product),brand:brand?cap(brand):'',tags,price,priceType,packSize,packUnit,pieceQty,store,date,notes};entries.unshift(_ne);
+  saveE(_ne); populateSuggestions(); toast('✓ Saved');
   ['f-product','f-brand','f-kgprice','f-packprice','f-packsize','f-pieceprice','f-pieceqty','f-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('f-date').value=today();
   document.getElementById('chint').textContent='';
@@ -997,7 +1081,7 @@ function saveEdit(id){
   else{price=parseFloat(document.getElementById(`ie-pieceprice-${id}`)?.value)||entry.price;pieceQty=parseInt(document.getElementById(`ie-pieceqty-${id}`)?.value)||null;}
 
   Object.assign(entry,{product:cap(product),brand:brand?cap(brand):'',tags:editTagStates[id]||[],price,priceType:pt,packSize,packUnit,pieceQty,store,date,notes});
-  saveE(); populateSuggestions();
+  saveE(entry); populateSuggestions();
   editingId=null; delete editTagStates[id];
   renderLog(); toast('✓ Updated');
 }
@@ -1087,7 +1171,7 @@ function importJSON(){
     const entry={id:Date.now()+Math.random(),product:cap(String(item.product)),brand:item.brand?cap(String(item.brand)):'',tags:Array.isArray(item.tags)?item.tags.map(t=>String(t).toLowerCase().trim()):[],priceType:item.priceType||'bypack',price:parseFloat(item.price)||0,packSize:item.packSize?parseFloat(item.packSize):null,packUnit:item.packUnit||'g',pieceQty:item.pieceQty?parseInt(item.pieceQty):null,store:String(item.store),date:String(item.date),notes:item.notes?String(item.notes):''};
     if(entry.price>0){entries.unshift(entry);count++;entry.tags.forEach(t=>tagColor(t));}
   });
-  saveE();populateSuggestions();
+  saveE();sbPushAll();populateSuggestions();
   document.getElementById('import-json').value='';
   toast(`✓ Imported ${count} entr${count===1?'y':'ies'}`);
   switchTab('home');
@@ -1098,7 +1182,7 @@ function importJSON(){
 // ════════════════════════════════════════════
 function delEntry(id){
   if(!confirm('Delete this entry?')) return;
-  entries=entries.filter(e=>e.id!==id);saveE();
+  entries=entries.filter(e=>e.id!==id);saveE();sbDelete(id);
   if(editingId===id){editingId=null;delete editTagStates[id];}
   renderLog();renderHome();toast('Deleted');
 }
@@ -1109,7 +1193,10 @@ function exportCSV(){
   const blob=new Blob([[h.join(','),...rows].join('\n')],{type:'text/csv'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`pasar-${today()}.csv`;a.click();toast('Exported');
 }
-function confirmClear(){if(!entries.length) return toast('Nothing to clear');if(confirm(`Delete all ${entries.length} entries?`)){entries=[];saveE();renderHome();toast('Cleared');}}
+function confirmClear(){if(!entries.length) return toast('Nothing to clear');if(confirm(`Delete all ${entries.length} entries?`)){entries=[];saveE();renderHome();toast('Cleared');
+    // wipe Supabase
+    fetch(`${SB_URL}/rest/v1/entries?id=neq.0`,{method:'DELETE',headers:SB_HDR}).catch(()=>{});
+  }}
 
 // ════════════════════════════════════════════
 // HELPERS
