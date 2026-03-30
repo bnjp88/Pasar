@@ -429,13 +429,14 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:.6;}
 const SB_URL  = 'https://iduofmmywuqvojkjphxd.supabase.co';
 const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkdW9mbW15d3Vxdm9qa2pwaHhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODAxNjUsImV4cCI6MjA5MDQ1NjE2NX0.jIoQFMwBJ27nGi52laEAIh46eop6C1Yts06PyIi6xvA';
 const SB_HDR  = {'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
+const SB_WRITE_HDR = {...SB_HDR,'x-pasar-key':'pasar-bnjp88-2026'};
 
 // Push a single entry upsert to Supabase
 async function sbUpsert(entry){
   try{
     await fetch(`${SB_URL}/rest/v1/entries`,{
       method:'POST',
-      headers:{...SB_HDR,'Prefer':'resolution=merge-duplicates'},
+      headers:{...SB_WRITE_HDR,'Prefer':'resolution=merge-duplicates'},
       body:JSON.stringify({id:entry.id, data:entry, updated_at:new Date().toISOString()})
     });
   }catch(e){console.warn('Supabase upsert failed',e);}
@@ -444,7 +445,7 @@ async function sbUpsert(entry){
 // Delete a single entry from Supabase
 async function sbDelete(id){
   try{
-    await fetch(`${SB_URL}/rest/v1/entries?id=eq.${id}`,{method:'DELETE',headers:SB_HDR});
+    await fetch(`${SB_URL}/rest/v1/entries?id=eq.${id}`,{method:'DELETE',headers:SB_WRITE_HDR});
   }catch(e){console.warn('Supabase delete failed',e);}
 }
 
@@ -489,7 +490,7 @@ async function sbPushAll(){
     for(let i=0;i<rows.length;i+=50){
       await fetch(`${SB_URL}/rest/v1/entries`,{
         method:'POST',
-        headers:{...SB_HDR,'Prefer':'resolution=merge-duplicates'},
+        headers:{...SB_WRITE_HDR,'Prefer':'resolution=merge-duplicates'},
         body:JSON.stringify(rows.slice(i,i+50))
       });
     }
@@ -1193,10 +1194,13 @@ function exportCSV(){
   const blob=new Blob([[h.join(','),...rows].join('\n')],{type:'text/csv'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`pasar-${today()}.csv`;a.click();toast('Exported');
 }
-function confirmClear(){if(!entries.length) return toast('Nothing to clear');if(confirm(`Delete all ${entries.length} entries?`)){entries=[];saveE();renderHome();toast('Cleared');
-    // wipe Supabase
-    fetch(`${SB_URL}/rest/v1/entries?id=neq.0`,{method:'DELETE',headers:SB_HDR}).catch(()=>{});
-  }}
+function confirmClear(){
+  if(!entries.length) return toast('Nothing to clear');
+  const input=prompt(`Type DELETE to wipe all ${entries.length} entries. This cannot be undone.`);
+  if(input!=='DELETE') return toast('Cancelled — nothing deleted');
+  entries=[];saveE();renderHome();toast('All data cleared');
+  fetch(`${SB_URL}/rest/v1/entries?id=neq.0`,{method:'DELETE',headers:SB_WRITE_HDR}).catch(()=>{});
+}
 
 // ════════════════════════════════════════════
 // HELPERS
