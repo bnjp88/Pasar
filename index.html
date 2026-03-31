@@ -451,25 +451,25 @@ async function sbDelete(id){
 }
 
 // Pull all entries from Supabase and merge with localStorage
-// Remote wins on conflict (same id), newest updated_at wins
+// Local always wins — remote only adds entries we don't have locally
+let _skipNextSync=false;
 async function sbSync(){
+  if(_skipNextSync){_skipNextSync=false;setSyncStatus('ok');return;}
   setSyncStatus('syncing');
   try{
     const res=await fetch(`${SB_URL}/rest/v1/entries?select=id,data,updated_at&order=updated_at.desc`,{headers:SB_HDR});
     if(!res.ok) throw new Error('HTTP '+res.status);
     const rows=await res.json();
     if(rows&&rows.length){
-      const remoteMap={};
-      rows.forEach(r=>{ if(r.data) remoteMap[r.id]=r.data; });
-      const localMap={};
-      entries.forEach(e=>localMap[e.id]=e);
-      // Local wins for any id that only exists locally (e.g. just imported)
-      // Remote wins for any id that exists remotely
-      const merged=Object.values({...remoteMap,...localMap});
-      merged.sort((a,b)=>b.date.localeCompare(a.date)||(b.id-a.id));
-      entries=merged;
-      localStorage.setItem(EK,JSON.stringify(entries));
-      entries.forEach(e=>(e.tags||[]).forEach(t=>tagColor(t)));
+      const localIds=new Set(entries.map(e=>String(e.id)));
+      // Only add remote entries that don't exist locally at all
+      const remoteOnly=rows.filter(r=>r.data&&!localIds.has(String(r.id))).map(r=>r.data);
+      if(remoteOnly.length){
+        entries=[...entries,...remoteOnly];
+        entries.sort((a,b)=>b.date.localeCompare(a.date)||(b.id-a.id));
+        localStorage.setItem(EK,JSON.stringify(entries));
+        entries.forEach(e=>(e.tags||[]).forEach(t=>tagColor(t)));
+      }
     }
     setSyncStatus('ok');
     renderHome();
@@ -1139,9 +1139,20 @@ function setTagColor(tag,idx){
   toast('Tag color updated');
 }
 
-// ════════════════════════════════════════════
-// IMPORT — FIXED: awaits sbPushAll before redirecting
-// ════════════════════════════════════════════
+// IMPORT: duplicate detection + skip-sync after push
+function isDuplicate(item){
+  const product=cap(String(item.product));
+  const store=String(item.store);
+  const date=String(item.date);
+  const price=parseFloat(item.price)||0;
+  return entries.some(e=>
+    e.product===product &&
+    e.store===store &&
+    e.date===date &&
+    Math.abs(e.price-price)<0.001
+  );
+}
+
 async function importJSON(){
   const raw=document.getElementById('import-json').value.trim();
   if(!raw) return toast('Paste JSON first');
@@ -1149,9 +1160,10 @@ async function importJSON(){
   try{data=JSON.parse(raw);}catch(e){return toast('Invalid JSON');}
   if(!Array.isArray(data)) return toast('Must be a JSON array');
 
-  let count=0;
+  let count=0, skipped=0;
   data.forEach(item=>{
     if(!item.product||!item.store||!item.date) return;
+    if(isDuplicate(item)){skipped++;return;}
     const entry={
       id:Date.now()+Math.random(),
       product:cap(String(item.product)),
@@ -1173,25 +1185,27 @@ async function importJSON(){
     }
   });
 
-  if(count===0) return toast('No valid entries found');
+  if(count===0){
+    if(skipped>0) return toast('All entries already exist');
+    return toast('No valid entries found');
+  }
 
-  // Save to localStorage immediately
   localStorage.setItem(EK,JSON.stringify(entries));
   populateSuggestions();
   renderHome();
 
-  // Disable button and show pushing state
   const btn=document.getElementById('import-btn');
   btn.disabled=true;
   btn.textContent='Pushing to cloud…';
 
-  // Push to Supabase and wait for it to complete before anything else
   await sbPushAll();
+  _skipNextSync=true;
 
   btn.disabled=false;
   btn.textContent='Import Entries';
   document.getElementById('import-json').value='';
-  toast(`✓ Imported ${count} entr${count===1?'y':'ies'}`);
+  const msg=skipped>0?`✓ Imported ${count}, skipped ${skipped} duplicate${skipped!==1?'s':''}`:`✓ Imported ${count} entr${count===1?'y':'ies'}`;
+  toast(msg);
   switchTab('home');
 }
 
