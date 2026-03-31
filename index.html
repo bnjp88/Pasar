@@ -73,6 +73,7 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:.6;}
 /* BUTTONS */
 .btn-primary{width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:7px;font-family:var(--mono);font-size:12px;letter-spacing:1.8px;text-transform:uppercase;cursor:pointer;margin-top:12px;transition:opacity .15s;}
 .btn-primary:hover{opacity:.87;} .btn-primary:active{opacity:.72;}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;}
 .btn-save{background:var(--green);color:#fff;border:none;border-radius:6px;padding:9px 18px;font-family:var(--mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer;transition:opacity .15s;}
 .btn-save:hover{opacity:.85;}
 .btn-cancel{background:transparent;border:1px solid var(--border);border-radius:6px;padding:9px 18px;font-family:var(--mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer;color:var(--muted);transition:all .15s;}
@@ -386,7 +387,7 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:.6;}
     <label>JSON Data</label>
     <textarea class="import-area" id="import-json" placeholder='[{"product":"Silken Tofu","brand":"Unicurd","tags":["tofu","soy"],"priceType":"bypack","price":1.90,"packSize":300,"packUnit":"g","store":"Aeon","date":"2026-03-30","notes":""}]'></textarea>
     <div class="ifmt">Fields: <code>product</code> <code>brand</code> <code>tags[]</code> <code>priceType</code> (byweight/bypack/bypiece) <code>price</code> <code>packSize</code> <code>packUnit</code> (g/ml/kg/L) <code>pieceQty</code> <code>store</code> <code>date</code> <code>notes</code></div>
-    <button class="btn-primary" onclick="importJSON()">Import Entries</button>
+    <button class="btn-primary" id="import-btn" onclick="importJSON()">Import Entries</button>
   </div>
   <p class="slabel">Prompt Template</p>
   <div class="card" style="background:var(--bg);">
@@ -458,19 +459,16 @@ async function sbSync(){
     if(!res.ok) throw new Error('HTTP '+res.status);
     const rows=await res.json();
     if(rows&&rows.length){
-      // Build map of remote entries keyed by id
       const remoteMap={};
       rows.forEach(r=>{ if(r.data) remoteMap[r.id]=r.data; });
-      // Merge: remote wins for any id that exists remotely
       const localMap={};
       entries.forEach(e=>localMap[e.id]=e);
-      // Union of all ids, remote takes precedence
-      const merged=Object.values({...localMap,...remoteMap});
-      // Sort newest first by date
+      // Local wins for any id that only exists locally (e.g. just imported)
+      // Remote wins for any id that exists remotely
+      const merged=Object.values({...remoteMap,...localMap});
       merged.sort((a,b)=>b.date.localeCompare(a.date)||(b.id-a.id));
       entries=merged;
       localStorage.setItem(EK,JSON.stringify(entries));
-      // ensure tag colors for all tags
       entries.forEach(e=>(e.tags||[]).forEach(t=>tagColor(t)));
     }
     setSyncStatus('ok');
@@ -486,7 +484,6 @@ async function sbSync(){
 async function sbPushAll(){
   try{
     const rows=entries.map(e=>({id:e.id,data:e,updated_at:new Date().toISOString()}));
-    // Upsert in batches of 50
     for(let i=0;i<rows.length;i+=50){
       await fetch(`${SB_URL}/rest/v1/entries`,{
         method:'POST',
@@ -514,7 +511,7 @@ let tagColors = JSON.parse(localStorage.getItem(TK)||'{}');
 let priceType = 'byweight';
 let activeStore='all', activeTag='all';
 let currentTags=[];
-let editingId=null; // currently open inline edit
+let editingId=null;
 
 const PALETTE=[
   {bg:'#dbeafe',tx:'#1e40af'},{bg:'#dcfce7',tx:'#166534'},
@@ -542,7 +539,6 @@ document.getElementById('f-date').value=today();
 initTagInput('tag-field-add','tsugg-add','tag-wrap-add',()=>currentTags,v=>{currentTags=v;renderTagPills('tag-wrap-add','tag-field-add',currentTags);});
 renderHome();
 populateSuggestions();
-// Sync with Supabase on load
 sbSync();
 
 function today(){return new Date().toISOString().split('T')[0];}
@@ -570,7 +566,6 @@ function renderHome(){
   const body=document.getElementById('home-body');
 
   if(!q){
-    // no query — show recent flat entries
     if(!entries.length){
       body.innerHTML='<div class="empty"><div class="empty-icon">🛒</div><p>No entries yet.<br>Tap <strong>+</strong> to add your first price.</p></div>';
       return;
@@ -579,7 +574,6 @@ function renderHome(){
     return;
   }
 
-  // Filter entries matching query
   const matched=entries.filter(e=>
     e.product.toLowerCase().includes(q)||
     (e.brand||'').toLowerCase().includes(q)||
@@ -593,14 +587,12 @@ function renderHome(){
     return;
   }
 
-  // Group by product
   const grouped={};
   matched.forEach(e=>{
     if(!grouped[e.product]) grouped[e.product]=[];
     grouped[e.product].push(e);
   });
 
-  // Sort groups by cheapest normalized price
   const groupList=Object.entries(grouped).map(([prod,list])=>{
     const norms=list.map(e=>normKg(e)).filter(n=>n!==null);
     const cheapestNorm=norms.length?Math.min(...norms):null;
@@ -618,7 +610,6 @@ function renderHome(){
 }
 
 function groupCard({prod,list,cheapestNorm}){
-  // Sort entries within group cheapest first (normalized if available)
   const sorted=[...list].sort((a,b)=>{
     const an=normKg(a)??a.price, bn=normKg(b)??b.price;
     return an-bn;
@@ -638,7 +629,6 @@ function groupCard({prod,list,cheapestNorm}){
   const tagsHtml=allTags.map(t=>{const c=tagColor(t);return`<span class="gtag" style="background:${c.bg};color:${c.tx}">#${t}</span>`;}).join('');
   const id='gc-'+encodeURIComponent(prod);
 
-  // rows for each entry
   const rowsHtml=sorted.map(e=>{
     let rp,rs,rn='';
     if(e.priceType==='byweight'){rp=`RM ${e.price.toFixed(2)}/kg`;rs=`RM ${(e.price/10).toFixed(2)}/100g`;}
@@ -754,7 +744,6 @@ function initTagInput(fieldId,suggId,wrapId,getArr,setArr){
 }
 
 function _pickTag(tag,fieldId,suggId,wrapId,getArr,setArr){
-  // resolve for add form vs edit form
   if(!getArr){
     if(fieldId==='tag-field-add'){_addTag(tag,()=>currentTags,v=>{currentTags=v;renderTagPills('tag-wrap-add','tag-field-add',currentTags);});}
     else{const id=fieldId.replace('tag-field-edit-','');_addTagEdit(id,tag);}
@@ -983,17 +972,15 @@ function inlineEditForm(e){
   </div>`;
 }
 
-let editTagStates={}; // {entryId: [tags]}
+let editTagStates={};
 
 function toggleEdit(id){
-  // close any other open edit
   if(editingId!==null&&editingId!==id) cancelEdit(editingId);
   if(editingId===id){ cancelEdit(id); return; }
   editingId=id;
   const entry=entries.find(e=>e.id===id);
   editTagStates[id]=[...(entry.tags||[])];
   renderLog();
-  // init tag input for this edit form
   setTimeout(()=>{
     renderEditTagPills(id);
     initEditTagInput(id);
@@ -1058,10 +1045,8 @@ function ieSetPT(id,pt){
 function saveEdit(id){
   const entry=entries.find(e=>e.id===id);
   if(!entry) return;
-  // commit pending tag text
   const tf=document.getElementById(`ie-tf-${id}`);
   if(tf){const v=tf.value.trim().replace(/,/g,'').toLowerCase();if(v) _addTagEdit(id,v);}
-
   const product=document.getElementById(`ie-product-${id}`)?.value.trim();
   const brand  =document.getElementById(`ie-brand-${id}`)?.value.trim();
   const store  =document.getElementById(`ie-store-${id}`)?.value.trim();
@@ -1069,18 +1054,14 @@ function saveEdit(id){
   const notes  =document.getElementById(`ie-notes-${id}`)?.value.trim();
   if(!product) return toast('Product name required');
   if(!store)   return toast('Store required');
-
-  // Detect active price type from seg buttons
   const segBtns=document.querySelectorAll(`#ie-${id} .seg button`);
   const types=['byweight','bypack','bypiece'];
   let pt=entry.priceType;
   segBtns.forEach((b,i)=>{if(b.classList.contains('active')) pt=types[i];});
-
   let price=entry.price, packSize=entry.packSize, packUnit=entry.packUnit||'g', pieceQty=entry.pieceQty;
   if(pt==='byweight'){price=parseFloat(document.getElementById(`ie-kgprice-${id}`)?.value)||entry.price;}
   else if(pt==='bypack'){price=parseFloat(document.getElementById(`ie-packprice-${id}`)?.value)||entry.price;packSize=parseFloat(document.getElementById(`ie-packsize-${id}`)?.value)||null;packUnit=document.getElementById(`ie-packunit-${id}`)?.value||'g';}
   else{price=parseFloat(document.getElementById(`ie-pieceprice-${id}`)?.value)||entry.price;pieceQty=parseInt(document.getElementById(`ie-pieceqty-${id}`)?.value)||null;}
-
   Object.assign(entry,{product:cap(product),brand:brand?cap(brand):'',tags:editTagStates[id]||[],price,priceType:pt,packSize,packUnit,pieceQty,store,date,notes});
   saveE(entry); populateSuggestions();
   editingId=null; delete editTagStates[id];
@@ -1159,20 +1140,56 @@ function setTagColor(tag,idx){
 }
 
 // ════════════════════════════════════════════
-// IMPORT
+// IMPORT — FIXED: awaits sbPushAll before redirecting
 // ════════════════════════════════════════════
-function importJSON(){
+async function importJSON(){
   const raw=document.getElementById('import-json').value.trim();
   if(!raw) return toast('Paste JSON first');
-  let data;try{data=JSON.parse(raw);}catch(e){return toast('Invalid JSON');}
+  let data;
+  try{data=JSON.parse(raw);}catch(e){return toast('Invalid JSON');}
   if(!Array.isArray(data)) return toast('Must be a JSON array');
+
   let count=0;
   data.forEach(item=>{
     if(!item.product||!item.store||!item.date) return;
-    const entry={id:Date.now()+Math.random(),product:cap(String(item.product)),brand:item.brand?cap(String(item.brand)):'',tags:Array.isArray(item.tags)?item.tags.map(t=>String(t).toLowerCase().trim()):[],priceType:item.priceType||'bypack',price:parseFloat(item.price)||0,packSize:item.packSize?parseFloat(item.packSize):null,packUnit:item.packUnit||'g',pieceQty:item.pieceQty?parseInt(item.pieceQty):null,store:String(item.store),date:String(item.date),notes:item.notes?String(item.notes):''};
-    if(entry.price>0){entries.unshift(entry);count++;entry.tags.forEach(t=>tagColor(t));}
+    const entry={
+      id:Date.now()+Math.random(),
+      product:cap(String(item.product)),
+      brand:item.brand?cap(String(item.brand)):'',
+      tags:Array.isArray(item.tags)?item.tags.map(t=>String(t).toLowerCase().trim()):[],
+      priceType:item.priceType||'bypack',
+      price:parseFloat(item.price)||0,
+      packSize:item.packSize?parseFloat(item.packSize):null,
+      packUnit:item.packUnit||'g',
+      pieceQty:item.pieceQty?parseInt(item.pieceQty):null,
+      store:String(item.store),
+      date:String(item.date),
+      notes:item.notes?String(item.notes):''
+    };
+    if(entry.price>0){
+      entries.unshift(entry);
+      count++;
+      entry.tags.forEach(t=>tagColor(t));
+    }
   });
-  saveE();sbPushAll();populateSuggestions();
+
+  if(count===0) return toast('No valid entries found');
+
+  // Save to localStorage immediately
+  localStorage.setItem(EK,JSON.stringify(entries));
+  populateSuggestions();
+  renderHome();
+
+  // Disable button and show pushing state
+  const btn=document.getElementById('import-btn');
+  btn.disabled=true;
+  btn.textContent='Pushing to cloud…';
+
+  // Push to Supabase and wait for it to complete before anything else
+  await sbPushAll();
+
+  btn.disabled=false;
+  btn.textContent='Import Entries';
   document.getElementById('import-json').value='';
   toast(`✓ Imported ${count} entr${count===1?'y':'ies'}`);
   switchTab('home');
