@@ -462,8 +462,10 @@ async function sbSync(){
     const rows=await res.json();
     if(rows&&rows.length){
       const localIds=new Set(entries.map(e=>String(e.id)));
-      // Only add remote entries that don't exist locally at all
-      const remoteOnly=rows.filter(r=>r.data&&!localIds.has(String(r.id))).map(r=>r.data);
+      // Deduplicate remote entries by content (product+store+date+price) to prevent re-adding old duplicates
+      function contentKey(e){return `${(e.product||'').toLowerCase()}|${e.store}|${e.date}|${parseFloat(e.price).toFixed(3)}`;}
+      const localKeys=new Set(entries.map(contentKey));
+      const remoteOnly=rows.filter(r=>r.data&&!localIds.has(String(r.id))&&!localKeys.has(contentKey(r.data))).map(r=>r.data);
       if(remoteOnly.length){
         entries=[...entries,...remoteOnly];
         entries.sort((a,b)=>b.date.localeCompare(a.date)||(b.id-a.id));
@@ -1032,36 +1034,38 @@ function renderEditTagPills(id){
 
 function ieSetPT(id,pt){
   const types=['byweight','bypack','bypiece'];
-  const wrap=document.getElementById(`ie-${id}`);
+  const wrap=document.getElementById('ie-'+id);
   if(!wrap) return;
   wrap.querySelectorAll('.seg button').forEach((b,i)=>b.classList.toggle('active',types[i]===pt));
-  wrap.querySelector(`#ie-gbw-${id}`).style.display  =pt==='byweight'?'block':'none';
-  wrap.querySelector(`#ie-gbp-${id}`).style.display  =pt==='bypack'  ?'block':'none';
-  wrap.querySelector(`#ie-gbp2-${id}`).style.display =pt==='bypack'  ?'block':'none';
-  wrap.querySelector(`#ie-gbpc-${id}`).style.display =pt==='bypiece' ?'block':'none';
-  wrap.querySelector(`#ie-gbpc2-${id}`).style.display=pt==='bypiece' ?'block':'none';
+  document.getElementById('ie-gbw-'+id).style.display  =pt==='byweight'?'block':'none';
+  document.getElementById('ie-gbp-'+id).style.display  =pt==='bypack'  ?'block':'none';
+  document.getElementById('ie-gbp2-'+id).style.display =pt==='bypack'  ?'block':'none';
+  document.getElementById('ie-gbpc-'+id).style.display =pt==='bypiece' ?'block':'none';
+  document.getElementById('ie-gbpc2-'+id).style.display=pt==='bypiece' ?'block':'none';
 }
 
 function saveEdit(id){
   const entry=entries.find(e=>e.id===id);
-  if(!entry) return;
-  const tf=document.getElementById(`ie-tf-${id}`);
+  if(!entry){toast('Entry not found');return;}
+  const tf=document.getElementById('ie-tf-'+id);
   if(tf){const v=tf.value.trim().replace(/,/g,'').toLowerCase();if(v) _addTagEdit(id,v);}
-  const product=document.getElementById(`ie-product-${id}`)?.value.trim();
-  const brand  =document.getElementById(`ie-brand-${id}`)?.value.trim();
-  const store  =document.getElementById(`ie-store-${id}`)?.value.trim();
-  const date   =document.getElementById(`ie-date-${id}`)?.value;
-  const notes  =document.getElementById(`ie-notes-${id}`)?.value.trim();
+  const product=(document.getElementById('ie-product-'+id)||{}).value?.trim();
+  const brand  =(document.getElementById('ie-brand-'+id)||{}).value?.trim();
+  const store  =(document.getElementById('ie-store-'+id)||{}).value?.trim();
+  const date   =(document.getElementById('ie-date-'+id)||{}).value;
+  const notes  =(document.getElementById('ie-notes-'+id)||{}).value?.trim();
   if(!product) return toast('Product name required');
   if(!store)   return toast('Store required');
-  const segBtns=document.querySelectorAll(`#ie-${id} .seg button`);
+  // Use the inline-edit div directly to avoid CSS selector issues with float IDs
+  const ieDiv=document.getElementById('ie-'+id);
+  const segBtns=ieDiv?ieDiv.querySelectorAll('.seg button'):[];
   const types=['byweight','bypack','bypiece'];
   let pt=entry.priceType;
   segBtns.forEach((b,i)=>{if(b.classList.contains('active')) pt=types[i];});
   let price=entry.price, packSize=entry.packSize, packUnit=entry.packUnit||'g', pieceQty=entry.pieceQty;
-  if(pt==='byweight'){price=parseFloat(document.getElementById(`ie-kgprice-${id}`)?.value)||entry.price;}
-  else if(pt==='bypack'){price=parseFloat(document.getElementById(`ie-packprice-${id}`)?.value)||entry.price;packSize=parseFloat(document.getElementById(`ie-packsize-${id}`)?.value)||null;packUnit=document.getElementById(`ie-packunit-${id}`)?.value||'g';}
-  else{price=parseFloat(document.getElementById(`ie-pieceprice-${id}`)?.value)||entry.price;pieceQty=parseInt(document.getElementById(`ie-pieceqty-${id}`)?.value)||null;}
+  if(pt==='byweight'){price=parseFloat((document.getElementById('ie-kgprice-'+id)||{}).value)||entry.price;}
+  else if(pt==='bypack'){price=parseFloat((document.getElementById('ie-packprice-'+id)||{}).value)||entry.price;packSize=parseFloat((document.getElementById('ie-packsize-'+id)||{}).value)||null;packUnit=(document.getElementById('ie-packunit-'+id)||{}).value||'g';}
+  else{price=parseFloat((document.getElementById('ie-pieceprice-'+id)||{}).value)||entry.price;pieceQty=parseInt((document.getElementById('ie-pieceqty-'+id)||{}).value)||null;}
   Object.assign(entry,{product:cap(product),brand:brand?cap(brand):'',tags:editTagStates[id]||[],price,priceType:pt,packSize,packUnit,pieceQty,store,date,notes});
   saveE(entry); populateSuggestions();
   editingId=null; delete editTagStates[id];
@@ -1165,7 +1169,7 @@ async function importJSON(){
     if(!item.product||!item.store||!item.date) return;
     if(isDuplicate(item)){skipped++;return;}
     const entry={
-      id:Date.now()+Math.random(),
+      id:Date.now()*1000+Math.floor(Math.random()*999),
       product:cap(String(item.product)),
       brand:item.brand?cap(String(item.brand)):'',
       tags:Array.isArray(item.tags)?item.tags.map(t=>String(t).toLowerCase().trim()):[],
