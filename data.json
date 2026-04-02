@@ -101,7 +101,8 @@
     "product": "Japanese Sweet Potato (Purple)",
     "brand": "",
     "tags": [
-      "vegetables"
+      "vegetables",
+      "sweet potato"
     ],
     "priceType": "byweight",
     "price": 11.1,
@@ -250,7 +251,8 @@
     "product": "Sweet Potato (Japanese)",
     "brand": "",
     "tags": [
-      "vegetables"
+      "vegetables",
+      "sweet potato"
     ],
     "priceType": "byweight",
     "price": 9.9,
@@ -380,7 +382,9 @@
     "id": 1775116153292,
     "product": "Nutritional Yeast",
     "brand": "Health Paradise",
-    "tags": [],
+    "tags": [
+      "dry"
+    ],
     "priceType": "bypack",
     "price": 14.5,
     "packSize": 100,
@@ -394,7 +398,9 @@
     "id": 1775116153293,
     "product": "Nutritional Yeast",
     "brand": "Radiant Whole Food",
-    "tags": [],
+    "tags": [
+      "dry"
+    ],
     "priceType": "bypack",
     "price": 21.9,
     "packSize": 100,
