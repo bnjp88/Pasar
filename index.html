@@ -240,7 +240,10 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:.6;}
 
 <header>
   <div class="logo">Pasar <em>Price Tracker</em></div>
-  <div style="display:flex;align-items:center;gap:8px"><div id="sync-dot" title="Sync status" style="width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0;transition:background .4s"></div></div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <div id="sync-dot" title="Sync status" style="width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0;transition:background .4s"></div>
+    <button class="hbtn" id="push-btn" title="Push local data to cloud" onclick="manualPush()" style="font-size:11px;letter-spacing:.5px;width:auto;padding:0 10px;">↑ Push</button>
+  </div>
   <div class="hbtns">
     <button class="hbtn" title="Manage Tags" onclick="openTagMgr()">⌗</button>
     <button class="hbtn" title="Import" onclick="switchTab('import')">↑</button>
@@ -452,9 +455,11 @@ async function sbDelete(id){
   }catch(e){console.warn('Supabase delete failed',e);}
 }
 
-// Pull all entries from Supabase and merge with localStorage
-// Local always wins — remote only adds entries we don't have locally
+// Sync with Supabase
+// Strategy: remote is source of truth, but we never delete local entries.
+// Always merge: take everything remote + anything local not in remote.
 let _skipNextSync=false;
+function contentKey(e){return `${(e.product||'').toLowerCase()}|${(e.store||'').toLowerCase()}|${e.date}|${parseFloat(e.price).toFixed(3)}`;}
 async function sbSync(){
   if(_skipNextSync){_skipNextSync=false;setSyncStatus('ok');return;}
   setSyncStatus('syncing');
@@ -463,17 +468,17 @@ async function sbSync(){
     if(!res.ok) throw new Error('HTTP '+res.status);
     const rows=await res.json();
     if(rows&&rows.length){
-      const localIds=new Set(entries.map(e=>String(e.id)));
-      // Deduplicate remote entries by content (product+store+date+price) to prevent re-adding old duplicates
-      function contentKey(e){return `${(e.product||'').toLowerCase()}|${e.store}|${e.date}|${parseFloat(e.price).toFixed(3)}`;}
-      const localKeys=new Set(entries.map(contentKey));
-      const remoteOnly=rows.filter(r=>r.data&&!localIds.has(String(r.id))&&!localKeys.has(contentKey(r.data))).map(r=>r.data);
-      if(remoteOnly.length){
-        entries=[...entries,...remoteOnly];
-        entries.sort((a,b)=>b.date.localeCompare(a.date)||(b.id-a.id));
-        localStorage.setItem(EK,JSON.stringify(entries));
-        entries.forEach(e=>(e.tags||[]).forEach(t=>tagColor(t)));
-      }
+      const remoteEntries=rows.filter(r=>r.data).map(r=>r.data);
+      const remoteIds=new Set(remoteEntries.map(e=>String(e.id)));
+      const remoteKeys=new Set(remoteEntries.map(contentKey));
+      // Keep local entries that aren't in remote by id OR content
+      const localOnly=entries.filter(e=>!remoteIds.has(String(e.id))&&!remoteKeys.has(contentKey(e)));
+      // Merge: remote entries + any local-only entries
+      const merged=[...remoteEntries,...localOnly];
+      merged.sort((a,b)=>b.date.localeCompare(a.date)||(b.id-a.id));
+      entries=merged;
+      localStorage.setItem(EK,JSON.stringify(entries));
+      entries.forEach(e=>(e.tags||[]).forEach(t=>tagColor(t)));
     }
     setSyncStatus('ok');
     renderHome();
@@ -496,6 +501,21 @@ async function sbPushAll(){
       });
     }
   }catch(e){console.warn('Supabase push all failed',e);}
+}
+
+// Manual push — uploads all local data to Supabase
+async function manualPush(){
+  if(!entries.length) return toast('Nothing to push');
+  const btn=document.getElementById('push-btn');
+  btn.textContent='Pushing…';
+  btn.disabled=true;
+  setSyncStatus('syncing');
+  await sbPushAll();
+  _skipNextSync=true;
+  btn.textContent='↑ Push';
+  btn.disabled=false;
+  setSyncStatus('ok');
+  toast(`✓ Pushed ${entries.length} entr${entries.length===1?'y':'ies'} to cloud`);
 }
 
 // Sync status indicator
@@ -1147,16 +1167,8 @@ function setTagColor(tag,idx){
 
 // IMPORT: duplicate detection + skip-sync after push
 function isDuplicate(item){
-  const product=cap(String(item.product));
-  const store=String(item.store);
-  const date=String(item.date);
-  const price=parseFloat(item.price)||0;
-  return entries.some(e=>
-    e.product===product &&
-    e.store===store &&
-    e.date===date &&
-    Math.abs(e.price-price)<0.001
-  );
+  const key=contentKey({product:String(item.product),store:String(item.store),date:String(item.date),price:parseFloat(item.price)||0});
+  return entries.some(e=>contentKey(e)===key);
 }
 
 async function importJSON(){
