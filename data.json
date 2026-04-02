@@ -1,0 +1,380 @@
+[
+  {
+    "id": 1775116153293,
+    "product": "Nutritional Yeast",
+    "brand": "Radiant Whole Food",
+    "tags": [],
+    "priceType": "bypack",
+    "price": 21.9,
+    "packSize": 100,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Aeon (Maluri)",
+    "date": "2026-03-17",
+    "notes": ""
+  },
+  {
+    "id": 1775116153292,
+    "product": "Nutritional Yeast",
+    "brand": "Health Paradise",
+    "tags": [],
+    "priceType": "bypack",
+    "price": 14.5,
+    "packSize": 100,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Village Grocer (Mytown)",
+    "date": "2026-03-18",
+    "notes": ""
+  },
+  {
+    "id": 1775116153291,
+    "product": "White Shimeji Mushrooms",
+    "brand": "",
+    "tags": [
+      "vegetables"
+    ],
+    "priceType": "bypack",
+    "price": 2,
+    "packSize": 125,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "NSK (Rivercity)",
+    "date": "2026-03-22",
+    "notes": ""
+  },
+  {
+    "id": 1775116153290,
+    "product": "Enoki Mushrooms",
+    "brand": "",
+    "tags": [
+      "vegetables"
+    ],
+    "priceType": "bypack",
+    "price": 3,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "NSK (Rivercity)",
+    "date": "2026-03-22",
+    "notes": ""
+  },
+  {
+    "id": 1775116153289,
+    "product": "Broccoli",
+    "brand": "",
+    "tags": [
+      "vegetables"
+    ],
+    "priceType": "bypiece",
+    "price": 2.39,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": 1,
+    "store": "NSK (Rivercity)",
+    "date": "2026-03-22",
+    "notes": ""
+  },
+  {
+    "id": 1775116153288,
+    "product": "Pumpkin (Labu Kuning)",
+    "brand": "",
+    "tags": [
+      "vegetables"
+    ],
+    "priceType": "byweight",
+    "price": 2.99,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "NSK (Rivercity)",
+    "date": "2026-03-22",
+    "notes": ""
+  },
+  {
+    "id": 1775116153287,
+    "product": "Celery (Australian)",
+    "brand": "",
+    "tags": [
+      "vegetables"
+    ],
+    "priceType": "byweight",
+    "price": 6.99,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "NSK (Rivercity)",
+    "date": "2026-03-22",
+    "notes": ""
+  },
+  {
+    "id": 1775116153286,
+    "product": "Eryngii Mushrooms",
+    "brand": "",
+    "tags": [
+      "vegetables"
+    ],
+    "priceType": "bypack",
+    "price": 2.99,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "NSK (Rivercity)",
+    "date": "2026-03-22",
+    "notes": ""
+  },
+  {
+    "id": 1775116153285,
+    "product": "Mince Beef",
+    "brand": "",
+    "tags": [
+      "meat"
+    ],
+    "priceType": "byweight",
+    "price": 56,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Wmart",
+    "date": "2026-03-25",
+    "notes": ""
+  },
+  {
+    "id": 1775116153284,
+    "product": "Sweet Potato (Japanese)",
+    "brand": "",
+    "tags": [
+      "vegetables"
+    ],
+    "priceType": "byweight",
+    "price": 9.9,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Aeon (Maluri)",
+    "date": "2026-03-29",
+    "notes": ""
+  },
+  {
+    "id": 1775116153283,
+    "product": "Cherry Tomato",
+    "brand": "Grace Cup",
+    "tags": [
+      "vegetables"
+    ],
+    "priceType": "bypack",
+    "price": 3.5,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Isetan (KLCC)",
+    "date": "2026-03-31",
+    "notes": ""
+  },
+  {
+    "id": 1775116153282,
+    "product": "Japanese Sweet Potato (Yellow)",
+    "brand": "",
+    "tags": [
+      "vegetables"
+    ],
+    "priceType": "byweight",
+    "price": 11.4,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Food Merchant (Pavillion)",
+    "date": "2026-03-31",
+    "notes": ""
+  },
+  {
+    "id": 1775116153281,
+    "product": "Chicken Gizzard",
+    "brand": "",
+    "tags": [
+      "meat"
+    ],
+    "priceType": "byweight",
+    "price": 12.5,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Food Merchant (Pavillion)",
+    "date": "2026-03-31",
+    "notes": ""
+  },
+  {
+    "id": 1775116153280,
+    "product": "Japanese Sweet Potato (Purple)",
+    "brand": "",
+    "tags": [
+      "vegetables"
+    ],
+    "priceType": "byweight",
+    "price": 11.1,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Food Merchant (Pavillion)",
+    "date": "2026-03-31",
+    "notes": ""
+  },
+  {
+    "id": 1775116153279,
+    "product": "Enoki Mushroom",
+    "brand": "Maoxing",
+    "tags": [
+      "vegetables"
+    ],
+    "priceType": "bypack",
+    "price": 0.9,
+    "packSize": 100,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Food Merchant (Pavillion)",
+    "date": "2026-03-31",
+    "notes": ""
+  },
+  {
+    "id": 1775116153278,
+    "product": "Celery (Australia)",
+    "brand": "",
+    "tags": [
+      "vegetables"
+    ],
+    "priceType": "byweight",
+    "price": 13.9,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Food Merchant (Pavillion)",
+    "date": "2026-03-31",
+    "notes": ""
+  },
+  {
+    "id": 1775116153277,
+    "product": "Mince Pork",
+    "brand": "DB",
+    "tags": [
+      "meat"
+    ],
+    "priceType": "byweight",
+    "price": 35.99,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Food Merchant (Pavillion)",
+    "date": "2026-03-31",
+    "notes": "Normal price RM48.50/kg, promo price RM35.99/kg"
+  },
+  {
+    "id": 1775116153276,
+    "product": "Brown Shimeji Mushroom (China)",
+    "brand": "",
+    "tags": [
+      "vegetables"
+    ],
+    "priceType": "bypack",
+    "price": 0.85,
+    "packSize": 150,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Food Merchant (Pavillion)",
+    "date": "2026-03-31",
+    "notes": ""
+  },
+  {
+    "id": 1775116153275,
+    "product": "White Shimeji Mushroom (China)",
+    "brand": "",
+    "tags": [
+      "vegetables"
+    ],
+    "priceType": "bypack",
+    "price": 2.55,
+    "packSize": 150,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Food Merchant (Pavillion)",
+    "date": "2026-03-31",
+    "notes": ""
+  },
+  {
+    "id": 1775116153274,
+    "product": "Cauliflower (China)",
+    "brand": "",
+    "tags": [
+      "vegetables"
+    ],
+    "priceType": "byweight",
+    "price": 5.05,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Food Merchant (Pavillion)",
+    "date": "2026-03-31",
+    "notes": ""
+  },
+  {
+    "id": 1775116153273,
+    "product": "Mince Beef (Australia Knuckle Weight Watcher)",
+    "brand": "",
+    "tags": [
+      "meat"
+    ],
+    "priceType": "byweight",
+    "price": 70.9,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Food Merchant (Pavillion)",
+    "date": "2026-03-31",
+    "notes": ""
+  },
+  {
+    "id": 1775116153272,
+    "product": "Broccoli (China)",
+    "brand": "",
+    "tags": [
+      "vegetables"
+    ],
+    "priceType": "bypiece",
+    "price": 2.85,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": 1,
+    "store": "Food Merchant (Pavillion)",
+    "date": "2026-03-31",
+    "notes": ""
+  },
+  {
+    "id": 1775116153271,
+    "product": "Mince Beef (Australia Knuckle Weight Watcher)",
+    "brand": "",
+    "tags": [
+      "meat"
+    ],
+    "priceType": "byweight",
+    "price": 70.9,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Village Grocer (AvenueK)",
+    "date": "2026-04-01",
+    "notes": ""
+  },
+  {
+    "id": 1775116153270,
+    "product": "Udon Noodles",
+    "brand": "LL Boil",
+    "tags": [],
+    "priceType": "bypack",
+    "price": 2.3,
+    "packSize": 200,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Isetan (KLCC)",
+    "date": "2026-04-01",
+    "notes": ""
+  }
+]
