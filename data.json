@@ -1,5 +1,22 @@
 [
   {
+    "id": 1775158135285,
+    "product": "Mince Beef",
+    "brand": "Donki",
+    "tags": [
+      "meat",
+      "beef"
+    ],
+    "price": 14.9,
+    "priceType": "bypack",
+    "packSize": 300,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Donki",
+    "date": "2026-04-02",
+    "notes": ""
+  },
+  {
     "id": 1775116153271,
     "product": "Mince Beef (Australia Knuckle Weight Watcher)",
     "brand": "",
