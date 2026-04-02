@@ -151,8 +151,7 @@
     "brand": "",
     "tags": [
       "vegetables",
-      "mushroom",
-      "m"
+      "mushroom"
     ],
     "priceType": "bypack",
     "price": 0.85,
@@ -266,7 +265,8 @@
     "product": "White Shimeji Mushrooms",
     "brand": "",
     "tags": [
-      "vegetables"
+      "vegetables",
+      "mushroom"
     ],
     "priceType": "bypack",
     "price": 2,
@@ -282,7 +282,8 @@
     "product": "Enoki Mushrooms",
     "brand": "",
     "tags": [
-      "vegetables"
+      "vegetables",
+      "mushroom"
     ],
     "priceType": "bypack",
     "price": 3,
