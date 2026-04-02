@@ -302,19 +302,37 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:.6;}
 <div class="moverlay" id="modal-tags" onclick="closeMod('modal-tags',event)">
   <div class="modal"><div class="mhandle"></div><div class="mtitle">Manage Tags</div><div class="msub">Tap a color swatch to reassign.</div><div id="tag-mgr-body"></div></div>
 </div>
+
+<!-- TOKEN PROMPT MODAL -->
+<div class="moverlay" id="modal-token">
+  <div class="modal" style="max-height:60vh">
+    <div class="mhandle"></div>
+    <div class="mtitle">GitHub Token</div>
+    <div class="msub">Paste your GitHub Personal Access Token to enable cloud sync. Stored locally on this device only.</div>
+    <label>Personal Access Token</label>
+    <input id="token-input" type="password" placeholder="ghp_..." style="margin-bottom:12px;font-size:13px">
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn-save" onclick="saveToken()" style="flex:1">Save Token</button>
+      <button class="btn-cancel" onclick="document.getElementById('modal-token').classList.remove('open')" style="flex:1">Cancel</button>
+    </div>
+    <p style="font-size:10px;color:var(--muted);margin-top:14px;line-height:1.7">Generate at: github.com &#8594; Settings &#8594; Developer settings &#8594; Personal access tokens (classic). Scope: repo only.</p>
+  </div>
+</div>
 <div id="toast"></div>
 <script>
 // GITHUB SYNC
-const GH_TOKEN='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';
 const GH_REPO='bnjp88/Pasar';
 const GH_FILE='data.json';
 const GH_API='https://api.github.com/repos/'+GH_REPO+'/contents/'+GH_FILE;
-const GH_HDR={'Authorization':'token '+GH_TOKEN,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'};
+const TK_KEY='pasar_gh_token';
+function getToken(){return localStorage.getItem(TK_KEY)||'';}
+function ghHdr(){return{'Authorization':'token '+getToken(),'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'};}
 
 async function ghPull(){
+  if(!getToken()){setSyncDot('err');return;}
   setSyncDot('syncing');
   try{
-    const res=await fetch(GH_API+'?t='+Date.now(),{headers:GH_HDR});
+    const res=await fetch(GH_API+'?t='+Date.now(),{headers:ghHdr()});
     if(res.status===404){setSyncDot('ok');return;}
     if(!res.ok)throw new Error(res.status);
     const j=await res.json();
@@ -334,17 +352,18 @@ async function ghPull(){
 }
 
 async function ghPush(){
+  if(!getToken()){showTokenPrompt();return;}
   if(!entries.length){toast('Nothing to push');return;}
   const btn=document.getElementById('push-btn');
   btn.textContent='Pushing...';btn.disabled=true;setSyncDot('syncing');
   try{
     let sha=null;
-    const chk=await fetch(GH_API+'?t='+Date.now(),{headers:GH_HDR});
+    const chk=await fetch(GH_API+'?t='+Date.now(),{headers:ghHdr()});
     if(chk.ok){const j=await chk.json();sha=j.sha;}
     const content=btoa(unescape(encodeURIComponent(JSON.stringify(entries,null,2))));
     const body={message:'Pasar sync '+new Date().toISOString(),content};
     if(sha)body.sha=sha;
-    const res=await fetch(GH_API,{method:'PUT',headers:GH_HDR,body:JSON.stringify(body)});
+    const res=await fetch(GH_API,{method:'PUT',headers:ghHdr(),body:JSON.stringify(body)});
     if(!res.ok)throw new Error(res.status);
     setSyncDot('ok');
     toast('\u2713 Pushed '+entries.length+' entr'+(entries.length===1?'y':'ies')+' to cloud');
@@ -398,6 +417,7 @@ document.getElementById('f-date').value=today();
 initTagInput('tag-field-add','tsugg-add','tag-wrap-add',()=>currentTags,v=>{currentTags=v;renderTagPills('tag-wrap-add','tag-field-add',currentTags);});
 renderHome();renderHomeTagChips();populateSuggestions();
 ghPull();
+checkToken();
 
 function today(){return new Date().toISOString().split('T')[0];}
 
@@ -780,6 +800,24 @@ function confirmClear(){
   if(input!=='DELETE')return toast('Cancelled');
   entries=[];saveLocal();renderHome();renderHomeTagChips();toast('All data cleared');
 }
+
+
+// TOKEN MANAGEMENT
+function showTokenPrompt(){
+  document.getElementById('modal-token').classList.add('open');
+  setTimeout(()=>document.getElementById('token-input').focus(),300);
+}
+function saveToken(){
+  const t=document.getElementById('token-input').value.trim();
+  if(!t||!t.startsWith('ghp_'))return toast('Invalid token — must start with ghp_');
+  localStorage.setItem(TK_KEY,t);
+  document.getElementById('token-input').value='';
+  document.getElementById('modal-token').classList.remove('open');
+  toast('✓ Token saved');
+  ghPull();
+}
+// Check token on load and show prompt if missing
+function checkToken(){if(!getToken())showTokenPrompt();}
 
 // HELPERS
 function getPriceDelta(entry){
