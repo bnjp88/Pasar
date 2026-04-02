@@ -67,7 +67,8 @@
     "product": "Chicken Gizzard",
     "brand": "",
     "tags": [
-      "meat"
+      "meat",
+      "chicken"
     ],
     "priceType": "byweight",
     "price": 12.5,
@@ -99,7 +100,8 @@
     "product": "Enoki Mushroom",
     "brand": "Maoxing",
     "tags": [
-      "vegetables"
+      "vegetables",
+      "mushroom"
     ],
     "priceType": "bypack",
     "price": 0.9,
@@ -131,7 +133,8 @@
     "product": "Mince Pork",
     "brand": "DB",
     "tags": [
-      "meat"
+      "meat",
+      "pork"
     ],
     "priceType": "byweight",
     "price": 35.99,
@@ -147,7 +150,9 @@
     "product": "Brown Shimeji Mushroom (China)",
     "brand": "",
     "tags": [
-      "vegetables"
+      "vegetables",
+      "mushroom",
+      "m"
     ],
     "priceType": "bypack",
     "price": 0.85,
@@ -163,7 +168,8 @@
     "product": "White Shimeji Mushroom (China)",
     "brand": "",
     "tags": [
-      "vegetables"
+      "vegetables",
+      "mushroom"
     ],
     "priceType": "bypack",
     "price": 2.55,
@@ -195,7 +201,8 @@
     "product": "Mince Beef (Australia Knuckle Weight Watcher)",
     "brand": "",
     "tags": [
-      "meat"
+      "meat",
+      "beef"
     ],
     "priceType": "byweight",
     "price": 70.9,
@@ -339,7 +346,8 @@
     "product": "Eryngii Mushrooms",
     "brand": "",
     "tags": [
-      "vegetables"
+      "vegetables",
+      "mushroom"
     ],
     "priceType": "bypack",
     "price": 2.99,
