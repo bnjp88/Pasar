@@ -1,5 +1,175 @@
 [
   {
+    "id": 1775200004409,
+    "product": "Chinese Cabbage",
+    "brand": "",
+    "tags": [
+      "vegetables",
+      "cabbage"
+    ],
+    "priceType": "byweight",
+    "price": 3.89,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Cold Storage (Sungai Wang)",
+    "date": "2026-04-03",
+    "notes": ""
+  },
+  {
+    "id": 1775200004408,
+    "product": "Red Cabbage (China)",
+    "brand": "",
+    "tags": [
+      "vegetables",
+      "cabbage"
+    ],
+    "priceType": "byweight",
+    "price": 5.99,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Cold Storage (Sungai Wang)",
+    "date": "2026-04-03",
+    "notes": ""
+  },
+  {
+    "id": 1775200004407,
+    "product": "Beijing Cabbage",
+    "brand": "",
+    "tags": [
+      "vegetables",
+      "cabbage"
+    ],
+    "priceType": "byweight",
+    "price": 4.38,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Cold Storage (Sungai Wang)",
+    "date": "2026-04-03",
+    "notes": ""
+  },
+  {
+    "id": 1775200004406,
+    "product": "Round Cabbage",
+    "brand": "",
+    "tags": [
+      "vegetables",
+      "cabbage"
+    ],
+    "priceType": "byweight",
+    "price": 1.99,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Cold Storage (Sungai Wang)",
+    "date": "2026-04-03",
+    "notes": ""
+  },
+  {
+    "id": 1775200004405,
+    "product": "Chinese Cabbage Cameron (Local)",
+    "brand": "",
+    "tags": [
+      "vegetables",
+      "cabbage"
+    ],
+    "priceType": "byweight",
+    "price": 7.9,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Food Merchant (Pavillion)",
+    "date": "2026-04-03",
+    "notes": ""
+  },
+  {
+    "id": 1775200004404,
+    "product": "Chinese Cabbage Yuan Xiao Bai (China)",
+    "brand": "",
+    "tags": [
+      "vegetables",
+      "cabbage"
+    ],
+    "priceType": "byweight",
+    "price": 7.8,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Food Merchant (Pavillion)",
+    "date": "2026-04-03",
+    "notes": ""
+  },
+  {
+    "id": 1775200004403,
+    "product": "Red Cabbage (China)",
+    "brand": "",
+    "tags": [
+      "vegetables",
+      "cabbage"
+    ],
+    "priceType": "byweight",
+    "price": 7.1,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Food Merchant (Pavillion)",
+    "date": "2026-04-03",
+    "notes": ""
+  },
+  {
+    "id": 1775200004402,
+    "product": "Beijing Cabbage (China)",
+    "brand": "",
+    "tags": [
+      "vegetables",
+      "cabbage"
+    ],
+    "priceType": "byweight",
+    "price": 4.2,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Food Merchant (Pavillion)",
+    "date": "2026-04-03",
+    "notes": ""
+  },
+  {
+    "id": 1775200004401,
+    "product": "Golden Sweet Potato",
+    "brand": "",
+    "tags": [
+      "sweet potato",
+      "vegetables"
+    ],
+    "priceType": "bypack",
+    "price": 7.9,
+    "packSize": 500,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Aeon (Maluri)",
+    "date": "2026-04-03",
+    "notes": ""
+  },
+  {
+    "id": 1775200004400,
+    "product": "Sweet Potato (Local)",
+    "brand": "",
+    "tags": [
+      "sweet potato",
+      "vegetables"
+    ],
+    "priceType": "bypack",
+    "price": 6.2,
+    "packSize": 1000,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Aeon (Maluri)",
+    "date": "2026-04-03",
+    "notes": ""
+  },
+  {
     "id": 1775158135285,
     "product": "Mince Beef",
     "brand": "Donki",
