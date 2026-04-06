@@ -1,5 +1,156 @@
 [
   {
+    "id": 1775494482057,
+    "product": "Mince Pork",
+    "brand": "",
+    "tags": [
+      "meat",
+      "pork"
+    ],
+    "priceType": "byweight",
+    "price": 41.9,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Food Merchant (Pavillion)",
+    "date": "2026-04-06",
+    "notes": ""
+  },
+  {
+    "id": 1775494482056,
+    "product": "Spring Onion",
+    "brand": "",
+    "tags": [
+      "vegetables",
+      "aromatics"
+    ],
+    "priceType": "bypack",
+    "price": 1.85,
+    "packSize": 80,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Food Merchant (Pavillion)",
+    "date": "2026-04-06",
+    "notes": ""
+  },
+  {
+    "id": 1775494482055,
+    "product": "Carrots (China)",
+    "brand": "",
+    "tags": [
+      "vegetables"
+    ],
+    "priceType": "bypack",
+    "price": 2.79,
+    "packSize": 500,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Food Merchant (Pavillion)",
+    "date": "2026-04-06",
+    "notes": ""
+  },
+  {
+    "id": 1775494482054,
+    "product": "Carrots (Australia)",
+    "brand": "",
+    "tags": [
+      "vegetables"
+    ],
+    "priceType": "bypack",
+    "price": 3.4,
+    "packSize": 500,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Food Merchant (Pavillion)",
+    "date": "2026-04-06",
+    "notes": ""
+  },
+  {
+    "id": 1775494482053,
+    "product": "Japanese Sweet Potato (Purple)",
+    "brand": "",
+    "tags": [
+      "vegetables",
+      "sweet potato"
+    ],
+    "priceType": "byweight",
+    "price": 8.2,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Cold Storage (Sungai Wang)",
+    "date": "2026-04-06",
+    "notes": ""
+  },
+  {
+    "id": 1775494482052,
+    "product": "Japanese Sweet Potato (Yellow)",
+    "brand": "",
+    "tags": [
+      "vegetables",
+      "sweet potato"
+    ],
+    "priceType": "byweight",
+    "price": 6.99,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Cold Storage (Sungai Wang)",
+    "date": "2026-04-06",
+    "notes": ""
+  },
+  {
+    "id": 1775494482051,
+    "product": "Long Beans (Kacang Panjang)",
+    "brand": "",
+    "tags": [
+      "vegetables"
+    ],
+    "priceType": "byweight",
+    "price": 11.99,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Village Grocer (AvenueK)",
+    "date": "2026-04-06",
+    "notes": ""
+  },
+  {
+    "id": 1775494482050,
+    "product": "Chicken Neck",
+    "brand": "",
+    "tags": [
+      "meat",
+      "chicken"
+    ],
+    "priceType": "byweight",
+    "price": 7.9,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Village Grocer (AvenueK)",
+    "date": "2026-04-06",
+    "notes": ""
+  },
+  {
+    "id": 1775494482048,
+    "product": "Chicken Liver",
+    "brand": "",
+    "tags": [
+      "meat",
+      "chicken",
+      "offal"
+    ],
+    "priceType": "byweight",
+    "price": 8.5,
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Village Grocer (AvenueK)",
+    "date": "2026-04-06",
+    "notes": ""
+  },
+  {
     "id": 1775200004409,
     "product": "Chinese Cabbage",
     "brand": "",
