@@ -115,7 +115,10 @@
     "id": 1775836607039,
     "product": "Taiwan Sweet Potato (Indonesia)",
     "brand": "Unknown",
-    "tags": [],
+    "tags": [
+      "vegetables",
+      "sweet potato"
+    ],
     "priceType": "byweight",
     "price": 6.99,
     "packSize": 1,
