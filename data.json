@@ -251,7 +251,10 @@
     "id": 1775836607031,
     "product": "Chicken Gizzard",
     "brand": "Unknown",
-    "tags": [],
+    "tags": [
+      "meat",
+      "chicken"
+    ],
     "priceType": "byweight",
     "price": 9.99,
     "packSize": 1,
