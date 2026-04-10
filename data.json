@@ -67,7 +67,9 @@
     "id": 1775836607042,
     "product": "Spring Onion",
     "brand": "Unknown",
-    "tags": [],
+    "tags": [
+      "vegetables"
+    ],
     "priceType": "bypiece",
     "price": 3,
     "packSize": null,
