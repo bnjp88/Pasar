@@ -1,5 +1,22 @@
 [
   {
+    "id": 1775837007458,
+    "product": "Chicken Gizzard",
+    "brand": "",
+    "tags": [
+      "meat",
+      "chicken"
+    ],
+    "price": 12.5,
+    "priceType": "byweight",
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Food Merchant (Pavillion)",
+    "date": "2026-04-10",
+    "notes": ""
+  },
+  {
     "id": 1775836984407,
     "product": "Chicken Liver",
     "brand": "",
