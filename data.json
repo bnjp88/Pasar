@@ -51,7 +51,9 @@
     "id": 1775836607043,
     "product": "Pumpkin",
     "brand": "Unknown",
-    "tags": [],
+    "tags": [
+      "vegetables"
+    ],
     "priceType": "byweight",
     "price": 1.99,
     "packSize": 1,
