@@ -217,7 +217,10 @@
     "id": 1775836607033,
     "product": "Chicken Bishop Nose",
     "brand": "Unknown",
-    "tags": [],
+    "tags": [
+      "meat",
+      "chicken"
+    ],
     "priceType": "byweight",
     "price": 9.5,
     "packSize": 1,
