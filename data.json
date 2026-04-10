@@ -132,7 +132,10 @@
     "id": 1775836607038,
     "product": "Japanese Sweet Potato (Japan)",
     "brand": "Unknown",
-    "tags": [],
+    "tags": [
+      "vegetables",
+      "sweet potato"
+    ],
     "priceType": "byweight",
     "price": 8.99,
     "packSize": 1,
