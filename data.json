@@ -1,5 +1,22 @@
 [
   {
+    "id": 1775836939924,
+    "product": "Mince Pork",
+    "brand": "Long Farm Meat",
+    "tags": [
+      "meat",
+      "pork"
+    ],
+    "price": 35.8,
+    "priceType": "byweight",
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Long Farm Meat",
+    "date": "2026-04-10",
+    "notes": ""
+  },
+  {
     "id": 1775836607046,
     "product": "Cauliflower (Bunga Kobis)",
     "brand": "Unknown",
