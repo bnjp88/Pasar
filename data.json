@@ -19,7 +19,9 @@
     "id": 1775836607045,
     "product": "Round Cabbage (Kobis Bulat)",
     "brand": "Unknown",
-    "tags": [],
+    "tags": [
+      "vegetables"
+    ],
     "priceType": "byweight",
     "price": 1.99,
     "packSize": 1,
