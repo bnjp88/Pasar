@@ -1,5 +1,23 @@
 [
   {
+    "id": 1775836984407,
+    "product": "Chicken Liver",
+    "brand": "",
+    "tags": [
+      "meat",
+      "chicken",
+      "offal"
+    ],
+    "price": 6.9,
+    "priceType": "byweight",
+    "packSize": null,
+    "packUnit": "g",
+    "pieceQty": null,
+    "store": "Food Merchant (Pavillion)",
+    "date": "2026-04-10",
+    "notes": ""
+  },
+  {
     "id": 1775836939924,
     "product": "Mince Pork",
     "brand": "Long Farm Meat",
