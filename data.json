@@ -68,7 +68,8 @@
     "product": "Spring Onion",
     "brand": "Unknown",
     "tags": [
-      "vegetables"
+      "vegetables",
+      "aromatics"
     ],
     "priceType": "bypiece",
     "price": 3,
