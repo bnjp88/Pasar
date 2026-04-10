@@ -35,7 +35,9 @@
     "id": 1775836607044,
     "product": "White Garlic (Bawang Putih)",
     "brand": "Unknown",
-    "tags": [],
+    "tags": [
+      "vegetables"
+    ],
     "priceType": "byweight",
     "price": 5.29,
     "packSize": 1,
