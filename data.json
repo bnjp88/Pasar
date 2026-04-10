@@ -83,7 +83,9 @@
     "id": 1775836607041,
     "product": "Long Beans (Kacang Panjang)",
     "brand": "Unknown",
-    "tags": [],
+    "tags": [
+      "vegetables"
+    ],
     "priceType": "byweight",
     "price": 5.99,
     "packSize": 1,
