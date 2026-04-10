@@ -167,7 +167,9 @@
     "id": 1775836607036,
     "product": "Broccoli (China)",
     "brand": "Unknown",
-    "tags": [],
+    "tags": [
+      "vegetables"
+    ],
     "priceType": "bypiece",
     "price": 2.39,
     "packSize": null,
