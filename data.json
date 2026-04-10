@@ -200,7 +200,10 @@
     "id": 1775836607034,
     "product": "Chicken Fillet",
     "brand": "Unknown",
-    "tags": [],
+    "tags": [
+      "meat",
+      "chicken"
+    ],
     "priceType": "byweight",
     "price": 18.5,
     "packSize": 1,
