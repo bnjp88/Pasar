@@ -99,7 +99,9 @@
     "id": 1775836607040,
     "product": "Beetroot (Ubi Merah)",
     "brand": "Unknown",
-    "tags": [],
+    "tags": [
+      "vegetables"
+    ],
     "priceType": "byweight",
     "price": 4.99,
     "packSize": 1,
