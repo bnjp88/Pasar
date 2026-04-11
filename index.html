@@ -192,7 +192,7 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:.6;}
   <div class="logo">Pasar <em>Price Tracker</em></div>
   <div class="sync-area">
     <div id="sync-dot" title="Sync status"></div>
-    <button id="push-btn" onclick="ghPush()">&#8593; Push</button>
+    <button id="pull-btn" onclick="ghPull(true)" title="Pull latest from cloud" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:var(--bg);border-radius:6px;height:28px;padding:0 10px;font-family:var(--mono);font-size:10px;letter-spacing:.8px;text-transform:uppercase;cursor:pointer;white-space:nowrap;">&#8595; Pull</button><button id="push-btn" onclick="ghPush()">&#8593; Push</button>
   </div>
   <div class="hbtns">
     <button class="hbtn" title="Manage Tags" onclick="openTagMgr()">&#8999;</button>
@@ -358,7 +358,7 @@ const TK_KEY='pasar_gh_token';
 function getToken(){return localStorage.getItem(TK_KEY)||'';}
 function ghHdr(){return{'Authorization':'token '+getToken(),'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'};}
 
-async function ghPull(){
+async function ghPull(manual){
   if(!getToken()){setSyncDot('err');return;}
   setSyncDot('syncing');
   try{
@@ -368,17 +368,20 @@ async function ghPull(){
     const j=await res.json();
     const remote=JSON.parse(atob(j.content.replace(/\n/g,'')));
     if(Array.isArray(remote)&&remote.length){
-      const remoteIds=new Set(remote.map(e=>String(e.id)));
-      const localOnly=entries.filter(e=>!remoteIds.has(String(e.id)));
-      const merged=[...remote,...localOnly];
+      // Remote is always source of truth - it contains everything that was pushed
+      // Only keep local entries that are genuinely newer (not yet pushed)
+      const remoteKeys=new Set(remote.map(contentKey));
+      const localUnpushed=entries.filter(e=>!remoteKeys.has(contentKey(e)));
+      const merged=[...remote,...localUnpushed];
       merged.sort((a,b)=>b.date.localeCompare(a.date)||(b.id-a.id));
       entries=merged;
       localStorage.setItem(EK,JSON.stringify(entries));
       entries.forEach(e=>(e.tags||[]).forEach(t=>tagColor(t)));
       renderHome();populateSuggestions();
+      if(manual)toast('\u2713 Pulled '+remote.length+' entr'+(remote.length===1?'y':'ies')+' from cloud');
     }
     setSyncDot('ok');
-  }catch(e){console.warn('Pull failed',e);setSyncDot('err');}
+  }catch(e){console.warn('Pull failed',e);setSyncDot('err');if(manual)toast('Pull failed \u2014 check connection');}
 }
 
 async function ghPush(){
@@ -836,10 +839,21 @@ async function importJSON(){
   if(count===0){if(skipped>0)return toast('All entries already exist');return toast('No valid entries found');}
   saveLocal();populateSuggestions();renderHome();
   const btn=document.getElementById('import-btn');btn.disabled=true;btn.textContent='Pushing to GitHub...';
-  await ghPush();
+  // Push silently - don't show ghPush's own toast
+  try{
+    let sha=null;
+    const chk=await fetch(GH_API+'?t='+Date.now(),{headers:ghHdr()});
+    if(chk.ok){const j=await chk.json();sha=j.sha;}
+    const cont=btoa(unescape(encodeURIComponent(JSON.stringify(entries,null,2))));
+    const pbody={message:'Pasar import '+new Date().toISOString(),content:cont};
+    if(sha)pbody.sha=sha;
+    const pres=await fetch(GH_API,{method:'PUT',headers:ghHdr(),body:JSON.stringify(pbody)});
+    if(!pres.ok)throw new Error(pres.status);
+    setSyncDot('ok');
+  }catch(e){console.warn('Import push failed',e);setSyncDot('err');}
   btn.disabled=false;btn.textContent='Import Entries';
   document.getElementById('import-json').value='';
-  toast(skipped>0?'\u2713 Imported '+count+', skipped '+skipped+' duplicate'+(skipped!==1?'s':''):'\u2713 Imported '+count+' entr'+(count===1?'y':'ies'));
+  toast(skipped>0?'\u2713 Imported '+count+', skipped '+skipped+' duplicate'+(skipped!==1?'s':''):'\u2713 Imported '+count+' entr'+(count===1?'y':'ies')+' \u2014 synced to cloud');
   switchTab('home');
 }
 
